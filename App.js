@@ -7,6 +7,11 @@ import stores from './stores'
 
 import MainContainer from './containers/MainContainer';
 
+import getTheme from './native-base-theme/components'
+import variables from './native-base-theme/variables/platform'
+
+import { StyleProvider } from 'native-base'
+
 export default class App extends React.Component {
   state = {
     isLoadingComplete: false,
@@ -24,11 +29,13 @@ export default class App extends React.Component {
     } else {
       return (
 
-        <Provider {...stores}>
-          <Root>
-            <MainContainer />
-          </Root>
-        </Provider>
+        <StyleProvider style={getTheme(variables)}>
+          <Provider {...stores}>
+            <Root>
+              <MainContainer />
+            </Root>
+          </Provider>
+        </StyleProvider>
       );
     }
   }

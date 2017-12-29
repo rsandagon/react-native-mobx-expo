@@ -53,6 +53,11 @@ export default class LoginContainer extends Component {
     }
   };
 
+  _handleEmailLogin = async () => {
+    //mocklogin
+    this.props.userStore.logInUser({name:'test user',id:123})
+  }
+
   render() {
     const { height: screenHeight } = Dimensions.get('window');
     const styles = {
@@ -122,11 +127,10 @@ export default class LoginContainer extends Component {
               <Input placeholder="Email" />
             </Item>
 
-            <Button iconLeft block success style={styles.emailButtonStyle}>
+            <Button iconLeft block success style={styles.emailButtonStyle} onPress={this._handleEmailLogin}>
               <Icon name='md-mail' />
               <Text>Login with email</Text>
             </Button>
-
 
           </View>
         </Content>
