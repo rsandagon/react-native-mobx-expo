@@ -1,118 +1,75 @@
-import React from 'react';
-import {
-  Alert,
-  Platform,
-  StyleSheet
-} from 'react-native';
-import MapView from 'react-native-maps'
+import React, { Component } from 'react';
+import { inject, observer } from 'mobx-react';
+import { MapView, Location, Permissions } from "expo";
+import { Text } from "react-native"
+import { observable,action } from 'mobx';
 
-const LATITUDE_DELTA = 0.01;
-const LONGITUDE_DELTA = 0.01;
+@inject('userStore', 'appStore')
+@observer
+export default class MapContainer extends Component {
 
-const initialRegion = {
-  latitude: -37.78825,
-  longitude: -122.4324,
-  latitudeDelta: 0.0922,
-  longitudeDelta: 0.0421,
-}
+  static LATITUDE_DELTA = 0.0922*1.5
+  static LONGITUDE_DELTA = 0.0421*1.5
 
-export default class MapContainer extends React.Component {
+  @observable
+  mapRegion = { latitude: 14.5545901, longitude: 120.9981703, 
+    latitudeDelta: MapContainer.LATITUDE_DELTA, longitudeDelta: MapContainer.LONGITUDE_DELTA }
 
-  map = null;
+  @observable
+  locationString = ''
 
-  state = {
-    region: {
-      latitude: -37.78825,
-      longitude: -122.4324,
-      latitudeDelta: 0.0922,
-      longitudeDelta: 0.0421,
-    },
-    ready: true,
-    filteredMarkers: []
-  };
-
-  setRegion(region) {
-    if(this.state.ready) {
-      //setTimeout(() => this.map.mapview.animateToRegion(region), 10);
-    }
-    //this.setState({ region });
+  @action('sets mapRegion')
+  setMapRegion(newRegion){
+    this.mapRegion = newRegion
   }
 
   componentDidMount() {
-    console.log('Component did mount');
-    this.getCurrentPosition();
+    this._getLocationAsync()
   }
 
-  getCurrentPosition() {
-    try {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          console.log('position',position)
-          const region = {
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-            latitudeDelta: LATITUDE_DELTA,
-            longitudeDelta: LONGITUDE_DELTA,
-          };
-          this.setRegion(region);
-        },
-        (error) => {
-          //TODO: better design
-          switch (error.code) {
-            case 1:
-              if (Platform.OS === "ios") {
-                Alert.alert("", "Para ubicar tu locación habilita permiso para la aplicación en Ajustes - Privacidad - Localización");
-              } else {
-                Alert.alert("", "Para ubicar tu locación habilita permiso para la aplicación en Ajustes - Apps - ExampleApp - Localización");
-              }
-              break;
-            default:
-              Alert.alert("", "Error al detectar tu locación");
-          }
-        }
-      );
-    } catch(e) {
-      alert(e.message || "");
+  _handleMapRegionChange = mapRegion => {
+    this.setMapRegion(mapRegion)
+  }
+
+  _getLocationAsync = async () => {
+    let { status } = await Permissions.askAsync(Permissions.LOCATION);
+    if (status !== 'granted') {
+      this.locationString = 'Permission to access location was denied'
     }
-  };
 
-  onMapReady = (e) => {
-    if(this.state.ready) {
-      this.setState({ready: true});
-    }
-  };
+    let location = await Location.getCurrentPositionAsync({})
+    this.locationString = JSON.stringify(location)
 
-  onRegionChange = (region) => {
-    console.log('onRegionChange', region);
-  };
+    let currentRegion = { latitude: location.coords.latitude, longitude: location.coords.longitude, 
+      latitudeDelta: MapContainer.LATITUDE_DELTA, longitudeDelta: MapContainer.LONGITUDE_DELTA}    
 
-  onRegionChangeComplete = (region) => {
-    console.log('onRegionChangeComplete', region);
-  };
+    //this.setMapRegion(currentRegion)
+  }
 
   render() {
-
-    const { region } = this.state;
-    const { children, renderMarker, markers } = this.props;
-
     return (
       <MapView
+        style={styles.mapStyle}
+        region={this.mapRegion}
+        onRegionChange={this._handleMapRegionChange}
         showsUserLocation
-        ref={ map => { this.map = map }}
-        data={markers}
-        initialRegion={initialRegion}
-        renderMarker={renderMarker}
-        onMapReady={this.onMapReady}
-        showsMyLocationButton={false}
-        onRegionChange={this.onRegionChange}
-        onRegionChangeComplete={this.onRegionChangeComplete}
-        style={StyleSheet.absoluteFill}
-        textStyle={{ color: '#bc8b00' }}
-        containerStyle={{backgroundColor: 'white', borderColor: '#BC8B00'}}>
-
-        
+        showsTraffic={false}
+        showsIndoors={false}
+      >
+        <Text>
+          Location: {this.locationString}
+        </Text>
 
       </MapView>
     );
+  }
+}
+
+const styles = {
+  mapStyle: {
+    alignSelf: 'stretch',
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   }
 }

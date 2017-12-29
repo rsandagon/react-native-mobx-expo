@@ -14,8 +14,7 @@ export default class MainContainer extends Component {
       );
     } else {
       return (
-        // <LoginContainer/>
-        <MapContainer/>
+        <LoginContainer/>
       );
     }
   }
