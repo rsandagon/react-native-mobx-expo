@@ -1,6 +1,6 @@
 import React from 'react';
+import { Root } from 'native-base'
 import { Provider } from 'mobx-react/native';
-import { Platform, StatusBar, StyleSheet, View } from 'react-native';
 import { AppLoading, Asset, Font } from 'expo';
 import { Ionicons } from '@expo/vector-icons';
 import stores from './stores'
@@ -25,14 +25,9 @@ export default class App extends React.Component {
       return (
 
         <Provider {...stores}>
-          <MainContainer/>
-          {/* <View style={styles.container}>
-            {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
-            {Platform.OS === 'android' && <View style={styles.statusBarUnderlay} />}
-
-            <MainContainer/>
-
-          </View> */}
+          <Root>
+            <MainContainer />
+          </Root>
         </Provider>
       );
     }
@@ -45,6 +40,9 @@ export default class App extends React.Component {
       ]),
       Font.loadAsync({
         ...Ionicons.font,
+        Roboto: require("native-base/Fonts/Roboto.ttf"),
+        Roboto_medium: require("native-base/Fonts/Roboto_medium.ttf"),
+        Ionicons: require("@expo/vector-icons/fonts/Ionicons.ttf"),
         'space-mono': require('./assets/fonts/SpaceMono-Regular.ttf'),
       }),
     ]);
@@ -58,14 +56,3 @@ export default class App extends React.Component {
     this.setState({ isLoadingComplete: true });
   };
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  statusBarUnderlay: {
-    height: 24,
-    backgroundColor: 'rgba(0,0,0,0.2)',
-  },
-});

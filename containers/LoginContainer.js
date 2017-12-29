@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import { Image, Text, View, StyleSheet, TouchableHighlight, Alert } from 'react-native';
+import { Container, Header, Title, Content, Footer, FooterTab, Button, Left, Right, Body, Icon, Text, Item, Input } from 'native-base';
+import { Image, View, Alert, Dimensions } from 'react-native';
 import { Constants, Facebook } from 'expo';
-import { inject,observer } from 'mobx-react';
+import { inject, observer } from 'mobx-react';
 import AppStore from '../stores/AppStore';
 
-@inject('userStore','appStore')
+@inject('userStore', 'appStore')
 @observer
 export default class LoginContainer extends Component {
   _handleFacebookLogin = async () => {
@@ -20,7 +21,7 @@ export default class LoginContainer extends Component {
           const response = await fetch(`https://graph.facebook.com/me?access_token=${token}`);
           const profile = await response.json();
 
-          console.log('user:',profile)
+          console.log('user:', profile)
 
           this.props.userStore.logInUser(profile)
 
@@ -53,42 +54,84 @@ export default class LoginContainer extends Component {
   };
 
   render() {
+    const { height: screenHeight } = Dimensions.get('window');
+    const styles = {
+      contentStyle: {
+        backgroundColor: '#2e2e2e',
+        flex: 1,
+        height: screenHeight,
+        justifyContent: 'center',
+        alignItems: 'center'
+      },
+      backgroundStyle: { flex: 1, height: undefined, width: undefined, opacity: 0.25 },
+      loginContainerStyle: { justifyContent: 'center', marginTop: 60 },
+      textWithLinesStyle: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 20,
+        marginTop: 20,
+      },
+      horizontalLineStyle: {
+        borderBottomColor: '#c7c7c7',
+        borderBottomWidth: 1,
+        flex: 1
+      },
+      smallTextStyle: {
+        fontSize: 12,
+        paddingLeft: 5,
+        paddingRight: 5,
+        color:'#c7c7c7',
+      },
+      emailButtonStyle: {
+        marginTop: 20,
+      }
+    }
+
     return (
-      <View style={styles.container}>
+      <Container>
+        <Content contentContainerStyle={styles.contentStyle}>
+          <View
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: screenHeight,
+            }}
+          >
+            <Image style={styles.backgroundStyle}
+              source={require("../assets/images/splash.png")}
+              resizeMode='contain'
+            />
+          </View>
+          <View style={styles.loginContainerStyle}>
 
-        <Image style={styles.logo} source={require("../assets/images/icon.png")} />
+            <Button iconLeft onPress={this._handleFacebookLogin}>
+              <Icon name='logo-facebook' />
+              <Text>Continue with Facebook</Text>
+            </Button>
 
-        <TouchableHighlight style={styles.fullWidthButton} onPress={this._handleFacebookLogin}>
-          <Text style={styles.fullWidthButtonText}>Continue with Facebook</Text>
-        </TouchableHighlight>
+            <View style={styles.textWithLinesStyle}>
+              <View style={styles.horizontalLineStyle} />
+              <Text style={styles.smallTextStyle}>OR ENTER YOUR EMAIL</Text>
+              <View style={styles.horizontalLineStyle} />
+            </View>
 
-      </View>
+            <Item>
+              <Input placeholder="Email" />
+            </Item>
+
+            <Button iconLeft block success style={styles.emailButtonStyle}>
+              <Icon name='md-mail' />
+              <Text>Login with email</Text>
+            </Button>
+
+
+          </View>
+        </Content>
+      </Container>
     );
   }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingTop: Constants.statusBarHeight,
-    backgroundColor: '#ecf0f1',
-  },
-  logo:{
-    paddingBottom:20,
-  },
-  fullWidthButton: {
-    backgroundColor: 'blue',
-    height: 60,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  fullWidthButtonText: {
-    fontSize: 15,
-    paddingLeft: 20,
-    paddingRight: 20,
-    color: 'white'
-  }
-});
