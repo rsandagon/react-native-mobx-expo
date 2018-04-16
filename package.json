@@ -3,7 +3,8 @@
   "private": true,
   "scripts": {
     "test": "node ./node_modules/jest/bin/jest.js --watch",
-    "postinstall": "rndebugger-open"
+    "postinstall": "rndebugger-open",
+    "start":"exp start"
   },
   "jest": {
     "preset": "jest-expo"
